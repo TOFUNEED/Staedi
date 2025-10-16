@@ -13,7 +13,7 @@ export const firebaseConfig = {
 
 
 // 駅間の標準所要時間データ（分）
-// PWAの時刻自動入力機能などで使用される可能性があります
+// 時刻自動計算機能で使用されます
 export const standardIntervals = {
     down: {
         'karuizawa': 4, 

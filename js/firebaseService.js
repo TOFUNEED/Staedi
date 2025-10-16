@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, writeBatch, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig } from './config.js';
 
 // Firebaseの初期化
@@ -41,110 +41,34 @@ export async function fetchAllTrainIds() {
 /**
  * 特定の列車データをFirestoreから取得する
  * @param {string} trainId - 取得したい列車の番号
- * @param {Array} allStations - 全駅データのリスト
- * @returns {Promise<Object>} { trainDetails, stopList } を含むオブジェクト
+ * @returns {Promise<Object|null>} 列車データオブジェクト、存在しない場合はnull
  */
-export async function fetchTrainData(trainId, allStations) {
+export async function fetchTrainData(trainId) {
     const trainDocRef = doc(db, "trains", trainId);
     const trainDocSnap = await getDoc(trainDocRef);
 
-    let trainDetails = {};
-    let stopList = [];
-
     if (trainDocSnap.exists()) {
-        trainDetails = trainDocSnap.data();
-        // 各駅のドキュメントを調べて、この列車が停車する情報を集める
-        for (const station of allStations) {
-            const stationDocRef = doc(db, "stations", station.id);
-            const stationDocSnap = await getDoc(stationDocRef);
-            if (stationDocSnap.exists()) {
-                const stopTrains = stationDocSnap.data().stop_trains || [];
-                const foundStop = stopTrains.find(stop => stop.trainId === trainId);
-                if (foundStop) {
-                    stopList.push({ 
-                        stationId: station.id,
-                        time: foundStop.time,
-                        time_arrival: foundStop.time_arrival,
-                        platform_arrival: foundStop.platform_arrival,
-                        platform_departure: foundStop.platform_departure,
-                        next_trainId: foundStop.next_trainId,
-                    });
-                }
-            }
-        }
+        return trainDocSnap.data();
+    } else {
+        return null; // データが存在しない
     }
-    return { trainDetails, stopList };
 }
 
 /**
  * 列車データをFirestoreに保存（新規作成または上書き）する
  * @param {string} trainId - 保存する列車の番号
- * @param {Object} trainData - 列車の基本情報
- * @param {Array} stopList - その列車の停車駅情報リスト
- * @param {Array} allStations - 全駅データのリスト
+ * @param {Object} trainData - 保存する完全な列車データオブジェクト
  */
-export async function saveTrainData(trainId, trainData, stopList, allStations) {
-    const batch = writeBatch(db);
-    
-    // 1. `trains`コレクションに列車の基本情報を保存
-    await setDoc(doc(db, "trains", trainId), trainData);
-
-    // 2. 全ての`stations`ドキュメントを更新し、この列車の停車情報を反映させる
-    for (const station of allStations) {
-        const stationDocRef = doc(db, "stations", station.id);
-        const stationDocSnap = await getDoc(stationDocRef);
-        if (stationDocSnap.exists()) {
-            let stopTrains = stationDocSnap.data().stop_trains || [];
-            
-            // いったん、この列車の古い情報をリストから削除する
-            const filteredStops = stopTrains.filter(s => s.trainId !== trainId);
-            
-            // 新しい停車情報があれば、リストに追加する
-            const newStop = stopList.find(s => s.stationId === station.id);
-            if (newStop) {
-                const { stationId, ...stopInfo } = newStop; // stationIdは不要なので除く
-                const stopDataToSave = {
-                    trainId,
-                    day: trainData.day,
-                    time: stopInfo.time, // 出発時刻
-                    // 値が存在する場合のみプロパティを追加（三項演算子）
-                    ...(stopInfo.time_arrival && { time_arrival: stopInfo.time_arrival }),
-                    ...(stopInfo.platform_arrival && { platform_arrival: stopInfo.platform_arrival }),
-                    ...(stopInfo.platform_departure && { platform_departure: stopInfo.platform_departure }),
-                    ...(stopInfo.next_trainId && { next_trainId: stopInfo.next_trainId }),
-                };
-                filteredStops.push(stopDataToSave);
-            }
-            batch.update(stationDocRef, { stop_trains: filteredStops });
-        }
-    }
-
-    await batch.commit();
+export async function saveTrainData(trainId, trainData) {
+    const trainDocRef = doc(db, "trains", trainId);
+    await setDoc(trainDocRef, trainData);
 }
 
 /**
  * 列車データをFirestoreから完全に削除する
  * @param {string} trainId - 削除する列車の番号
- * @param {Array} allStations - 全駅データのリスト
  */
-export async function deleteTrainData(trainId, allStations) {
-    const batch = writeBatch(db);
-
-    // 1. `trains`コレクションから列車の基本情報を削除
-    await deleteDoc(doc(db, "trains", trainId));
-
-    // 2. 全ての`stations`ドキュメントを更新し、この列車の停車情報を削除する
-    for (const station of allStations) {
-        const stationDocRef = doc(db, "stations", station.id);
-        const stationDocSnap = await getDoc(stationDocRef);
-        if (stationDocSnap.exists()) {
-            let stopTrains = stationDocSnap.data().stop_trains || [];
-            if (stopTrains.some(s => s.trainId === trainId)) {
-                const filteredStops = stopTrains.filter(s => s.trainId !== trainId);
-                batch.update(stationDocRef, { stop_trains: filteredStops });
-            }
-        }
-    }
-    
-    await batch.commit();
+export async function deleteTrainData(trainId) {
+    const trainDocRef = doc(db, "trains", trainId);
+    await deleteDoc(trainDocRef);
 }

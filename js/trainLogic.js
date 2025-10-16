@@ -61,3 +61,39 @@ export function getStationDisplayRules(station, role, direction) {
 
     return { ph_arr, ph_dep };
 }
+
+
+/**
+ * 保存される列車データの形式を検証する
+ * @param {Object} trainData - 保存しようとしている列車データ
+ * @param {Array} allStations - 全駅リスト（エラーメッセージ表示用）
+ * @returns {Object} { isValid: boolean, message?: string, invalidStationId?: string }
+ */
+export function validateTrainData(trainData, allStations) {
+    // HH:MM形式 (00:00 - 23:59) をチェックする正規表現
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+    for (const stop of trainData.stops) {
+        // 出発時刻のチェック
+        if (stop.departure && !timeRegex.test(stop.departure)) {
+            const station = allStations.find(s => s.id === stop.station_id);
+            return {
+                isValid: false,
+                message: `${station.name_jp}駅の出発時刻の形式が不正です。「HH:MM」(例: 09:30) の形式で入力してください。`,
+                invalidStationId: stop.station_id
+            };
+        }
+        // 到着時刻のチェック
+        if (stop.arrival && !timeRegex.test(stop.arrival)) {
+            const station = allStations.find(s => s.id === stop.station_id);
+            return {
+                isValid: false,
+                message: `${station.name_jp}駅の到着時刻の形式が不正です。「HH:MM」(例: 18:05) の形式で入力してください。`,
+                invalidStationId: stop.station_id
+            };
+        }
+    }
+
+    // すべてのチェックを通過した場合
+    return { isValid: true };
+}
