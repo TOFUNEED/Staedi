@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>しなの鉄道 列車データ 管理パネル v9</title>
+    <title>SRPWA-TIME-SETTING</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>しなの鉄道 列車データ 管理パネル v9</h1>
+        <h1>SRPWA-TIME-SETTING</h1>
         <div class="search-area">
             <input type="text" id="search-trainId" placeholder="列車番号で検索" style="text-transform: uppercase;">
             <button id="search-btn">検索 / 新規作成</button>
         </div>
 
         <div id="existing-trains-container" class="existing-trains-container">
-            <!-- JavaScriptがこの中に登録済み列車の一覧を生成します -->
+            <div class="list-filter">
+                <input type="text" id="list-filter-input" placeholder="一覧を絞り込み...">
+            </div>
+            <!-- JavaScriptがこの下に登録済み列車の一覧を生成します -->
         </div>
 
         <div id="edit-area" style="display: none;">
@@ -64,7 +67,7 @@
                 <div class="station-bulk-editor">
                     <h3>停車駅・時刻 一括設定</h3>
                     <div class="station-bulk-actions">
-                        <!-- ボタンが削除されたため、このエリアは空です -->
+                        <button type="button" id="auto-fill-times-btn" class="secondary-btn">時刻自動計算</button>
                     </div>
                     <div class="station-list-container">
                         <table class="station-list-table">
@@ -75,14 +78,12 @@
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="save-btn">保存</button>
+                    <button type="submit" id="save-btn" class="save-btn">保存</button>
                     <button type="button" id="delete-train-btn" class="delete-train-btn">削除</button>
                 </div>
             </form>
         </div>
     </div>
-    
-    <!-- JavaScriptファイルを読み込みます -->
     <script type="module" src="js/app.js"></script>
 </body>
 </html>
