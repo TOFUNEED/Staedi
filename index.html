@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>しなの鉄道 列車データ 管理パネル v5</title>
+    <title>しなの鉄道 列車データ 管理パネル v6</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>しなの鉄道 列車データ 管理パネル v5</h1>
+        <h1>しなの鉄道 列車データ 管理パネル v6</h1>
         <div class="search-area">
-            <input type="text" id="search-trainId" placeholder="列車番号で検索 (例: 221D)" style="text-transform: uppercase;">
+            <input type="text" id="search-trainId" placeholder="列車番号で検索" style="text-transform: uppercase;">
             <button id="search-btn">検索 / 新規作成</button>
         </div>
 
@@ -18,55 +18,44 @@
             <h2 id="current-trainId-title"></h2>
             
             <form id="train-form">
+                <!-- フォームの中身は変更なし -->
                 <div class="train-info">
                     <div><label for="train-type">種別</label><select id="train-type"><option value="普通">普通</option><option value="快速">快速</option><option value="特別快速">特別快速</option></select></div>
                     <div><label for="train-name">愛称名</label><input type="text" id="train-name" placeholder="例: しなのサンライズ"></div>
                     <div>
                         <label for="train-destination">行き先</label>
-                        <!-- ▼▼▼ 行き先のサジェスト機能を追加 ▼▼▼ -->
                         <input type="text" id="train-destination" list="destination-list" placeholder="例: 飯山">
                         <datalist id="destination-list">
-                            <option value="軽井沢"></option>
-                            <option value="小諸"></option>
-                            <option value="上田"></option>
-                            <option value="戸倉"></option>
-                            <option value="屋代"></option>
-                            <option value="長野"></option>
-                            <option value="妙高高原"></option>
-                            <option value="飯山"></option>
-                            <option value="戸狩野沢温泉"></option>
-                            <option value="十日町"></option>
-                            <option value="越後川口"></option>
+                            <option value="軽井沢"></option><option value="小諸"></option><option value="上田"></option><option value="戸倉"></option><option value="屋代"></option><option value="長野"></option><option value="妙高高原"></option><option value="飯山"></option><option value="戸狩野沢温泉"></option><option value="十日町"></option><option value="越後川口"></option>
                         </datalist>
                     </div>
                     <div><label for="train-direction">方面</label><input type="text" id="train-direction" readonly></div>
                     <div><label for="train-company">所属</label><input type="text" id="train-company" readonly></div>
                     <div><label for="train-days">運行日</label><select id="train-days"><option value="everyday">全日</option><option value="weekday">平日</option><option value="holiday">休日</option></select></div>
                 </div>
-
                 <div class="station-bulk-editor">
                     <h3>停車駅・時刻 一括設定</h3>
                     <div class="station-bulk-actions">
-                        <button type="button" id="set-all-stops-btn">全駅停車テンプレート</button>
-                        <button type="button" id="auto-fill-times-btn" class="secondary-btn">時刻を自動入力 (普通列車用)</button>
+                        <button type="button" id="set-all-stops-btn">全駅停車</button>
+                        <button type="button" id="auto-fill-times-btn" class="secondary-btn">時刻自動入力</button>
                     </div>
                     <div class="station-list-container">
                         <table class="station-list-table">
-                            <thead><tr><th>停車</th><th>駅名</th><th>時刻</th></tr></thead>
+                            <thead><tr><th>停車</th><th>駅名</th><th>時刻・詳細</th></tr></thead>
                             <tbody id="station-editor-tbody"></tbody>
                         </table>
                     </div>
                 </div>
-
                 <div class="form-actions">
-                    <button type="button" id="copy-btn" class="copy-btn">複製して新規作成</button>
-                    <button type="submit" class="save-btn">この列車の情報を保存</button>
-                    <button type="button" id="delete-train-btn" class="delete-train-btn">この列車を削除</button>
+                    <button type="button" id="copy-btn" class="copy-btn">複製</button>
+                    <button type="submit" class="save-btn">保存</button>
+                    <button type="button" id="delete-train-btn" class="delete-train-btn">削除</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <!-- ▼▼▼ 読み込み先を変更 ▼▼▼ -->
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
